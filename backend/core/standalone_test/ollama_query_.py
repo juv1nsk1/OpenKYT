@@ -1,6 +1,7 @@
 import ollama
 import tools
 
+
 # 2. Map function names to actual objects
 tools_map = {
     'add_numbers': tools.add_numbers,
@@ -9,7 +10,37 @@ tools_map = {
     'divide_numbers': tools.divide_numbers
 }
 
+OLLAMA_IP = "127.0.0.1"  # using tunnel to Glacier Server
+
+# create client to ollama
+client = ollama.Client(host=f'http://{OLLAMA_IP}:11434')
+
+def run_forensic_agent(user_input):
+
+    SYSTEM_PROMPT = """
+        You are a Senior Crypto Forensic Investigator. 
+        1. If the user asks a general question about blockchain, law, or crypto, answer directly using your internal knowledge.
+        2. If the user provides an Ethereum address (0x...), use the 'check_address_forensics' tool to fetch real data from the Cryosphere database.
+        3. Never hallucinate or invent transaction data. If the tool returns no data, say you don't have information on that specific address.
+        4. Be concise, technical, and professional.
+        """
+    messages = [
+        {'role': 'system', 'content': SYSTEM_PROMPT},
+        {'role': 'user', 'content': user_input}
+    ]
+
+    response = client.chat(
+            model='llama3.1:8b',
+        messages=messages,
+        #tools=tools # 
+    )
+
+    # If the model did not call a tool, it just answered a general question
+    if not response.get('message', {}).get('tool_calls'):
+        return response['message']['content']
+
 def run_calculator_agent(prompt):
+
     # 3. Define the tools for the LLM
     # This tells the model what functions exist and what parameters they take
     tools = [
@@ -75,13 +106,16 @@ def run_calculator_agent(prompt):
         }
     ]
 
-    # 4. First call: Ask Ollama what to do
-    response = ollama.chat(
+    
+
+
+    #response = ollama.chat( # local
+    response = client.chat(
         model='llama3.1:8b',
         messages=[{'role': 'user', 'content': prompt}],
         tools=tools
     )
-
+   
     # 5. Check if the model wants to call a tool
     if response.get('message', {}).get('tool_calls'):
         for tool in response['message']['tool_calls']:
@@ -93,7 +127,8 @@ def run_calculator_agent(prompt):
             print(f"DEBUG: LLM called {function_name} with {args} -> Result: {result}")
             
             # 6. Final call: Give the result back to the LLM to format a response
-            final_response = ollama.chat(
+            # final_response = ollama.chat( # local
+            final_response = client.chat(
                 model='llama3.1:8b',
                 messages=[
                     {'role': 'user', 'content': prompt},
@@ -107,7 +142,12 @@ def run_calculator_agent(prompt):
 
 # 7. CLI Loop
 if __name__ == "__main__":
+    
+    
     while True:
-        query = input("\nMath Query (or 'exit'): ")
+        query = input("\nForensic Query (or 'exit'): ")
         if query.lower() == 'exit': break
-        print("Agent:", run_calculator_agent(query))
+        print("Agent:", run_forensic_agent(query))
+        # Tools Sample
+        # query = input("\nMath Query (or 'exit'): ")
+        # print("Agent:", run_calculator_agent(query))
