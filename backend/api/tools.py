@@ -26,7 +26,7 @@ async def search_knowledge(query_text: str, ollama_client):
     
     # Format the results for the LLM context
     context_text = "\n".join([f"Source [{r[1]}]: {r[0]}" for r in results])
-    print('debugknow:', context_text)
+    # print('debugknow:', context_text)
     return context_text
 
 async def get_address_info(address: str):    
@@ -44,7 +44,7 @@ async def get_address_info(address: str):
             result = result + "\n" + str(address_label)
         if risk_score is not None:
             result = result + "\n" + str(risk_score)
-        print(result)
+        # print(result)
         return result
 
 

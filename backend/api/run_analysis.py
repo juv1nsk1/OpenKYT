@@ -66,7 +66,7 @@ async def run_analysis(user_input: str, session_id: str):
         }
         ]
     )
-    print(f"DEBUG Response: {response['message']}")
+    # print(f"DEBUG Response: {response['message']}")
     if response.get('message', {}).get('tool_calls'):
         for tool in response['message']['tool_calls']:
             name = tool['function']['name']

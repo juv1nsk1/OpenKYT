@@ -35,3 +35,17 @@ CREATE TABLE IF NOT EXISTS rag_knowledge (
     INDEX idx_vector embedding TYPE vector_similarity('L2Distance', 'hnsw', 16, 200, 100, 'f32') GRANULARITY 1
 ) ENGINE = MergeTree()
 ORDER BY id;
+
+
+
+-- Create the user with a secure password
+CREATE USER investigator_read IDENTIFIED WITH sha256_password BY 'YourSecurePassword123!';
+
+-- Create a read-only role
+CREATE ROLE read_only_nowa;
+
+-- Grant SELECT permission only on the 'nowa' database
+GRANT SELECT ON nowa.* TO read_only_nowa;
+
+-- Assign the role to your user
+GRANT read_only_nowa TO investigator_read;

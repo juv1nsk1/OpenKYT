@@ -21,6 +21,15 @@ The system operates on a stack containing 5 years of Ethereum transaction histor
 **Technical Specifications:**
 The Risk API utilizes the **StableAML** framework. Using domain-informed tree ensembles, the model reaches a **Macro-F1 score of 0.997**. The architecture differentiates between high-velocity transaction patterns of cybercrime syndicates and the static footprints of sanctioned entities, designed to meet the requirements of **MiCA** (EU) and the **GENIUS Act** (U.S.).
 
+**Technical Stack & Specifications**
+
+| Machine Learning | Data & Storage | 
+| :--- | :--- |
+| NVIDIA L4 GPU | ClickHouse Vector DB | 
+| Custom 8B Model | Real-time Indexing | 
+| Ollama Engine | 42M+ Labeled Nodes | 
+
+
 **Source Code:** [github.com/juv1nsk1/OpenKYT](https://github.com/juv1nsk1/OpenKYT)
 
 **Research Paper:** [StableAML (arXiv:2602.17842J)](https://ui.adsabs.harvard.edu/abs/2026arXiv260217842J/abstract)
