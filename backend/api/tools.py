@@ -1,7 +1,10 @@
 import requests
 from lib.clickhouse import ClickHouseClient
 import json
+import re
 
+def is_valid_address(address: str) -> bool:
+    return bool(re.match(r"^0x[a-fA-F0-9]{40}$", address))
 
 async def search_knowledge(query_text: str, ollama_client):
     # 1. Connect to Ollama to embed the search query
@@ -27,6 +30,8 @@ async def search_knowledge(query_text: str, ollama_client):
     return context_text
 
 async def get_address_info(address: str):    
+    if not is_valid_address(address):
+        return "Invalid address"
     try:
         contract_info = await get_contract_info(address)
         address_label = await get_address_label(address)
@@ -35,7 +40,6 @@ async def get_address_info(address: str):
         result = ""
         if contract_info is not None:
             result = contract_info
-        # concatenar os que nao forem None
         if address_label is not None:
             result = result + "\n" + str(address_label)
         if risk_score is not None:

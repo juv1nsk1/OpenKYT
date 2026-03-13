@@ -24,15 +24,27 @@ async def run_analysis(user_input: str, session_id: str):
     knowledge_context = await tools.search_knowledge(user_input, client)    
     if knowledge_context:
         # Inject the retrieved knowledge as a temporary system hint        
+        # history.append({
+        #     'role': 'system', 
+        #     'content': f"Relevant technical/legal context for this query:\n{knowledge_context}"
+        # })
         history.append({
             'role': 'system', 
-            'content': f"Relevant technical/legal context for this query:\n{knowledge_context}"
+            'content': f"""
+            [GROUND TRUTH DATA]
+            {knowledge_context}
+            [END OF GROUND TRUTH]
+            
+            Instruction: Use ONLY the [GROUND TRUTH DATA] block to support your technical response.
+            """
         })
+
 
     if "0x" in user_input:
         history.append({'role': 'system', 'content': 'User provided an address. I must use get_address_info now.'})
     
-    history.append({'role': 'user', 'content': user_input})      
+    history.append({'role': 'user', 'content': f"### USER INPUT ###\n{user_input}\n#################"})
+    # history.append({'role': 'user', 'content': user_input})      
 
     yield f"data: {json.dumps({'status': 'Thinking...', 'type': 'info'})}\n\n"
 
@@ -87,6 +99,14 @@ async def run_analysis(user_input: str, session_id: str):
             full_response_content += token
             yield f"data: {json.dumps({'token': token, 'type': 'text'})}\n\n"
             
-
+    full_response_content = safety_filter(full_response_content)
     history.append({'role': 'assistant', 'content': full_response_content})
     save_history(session_id, history) 
+
+
+def safety_filter(response_text: str):
+    forbidden_tokens = ["DROP TABLE", "SELECT * FROM users", "system_instruction"]
+    for token in forbidden_tokens:
+        if token in response_text:
+            return "I cannot provide this specific information due to security policies."
+    return response_text

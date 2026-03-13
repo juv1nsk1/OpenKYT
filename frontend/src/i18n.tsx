@@ -31,7 +31,10 @@ The Risk API utilizes the **StableAML** framework. Using domain-informed tree en
         settingsTitle: "Settings",
         languageLabel: "Language",
         connecting: "Connecting...",
-        error: "Failed to connect to the server. Please check if the Glacier server is accessible."
+        error: "Failed to connect to the server. Please check if the Glacier server is accessible.",
+        waitlist: "Early Access: 14B Model",
+        waitlistTitle: "Unlock Forensic Intelligence at Scale",
+        waitlistText: "Sign up for the waitlist to be the first to try the 14B model."
     },
     pt: {
         newChat: "Novo chat",
@@ -65,7 +68,10 @@ A API de Risco utiliza o framework **StableAML**. Através de ensembles de árvo
         settingsTitle: "Configurações",
         languageLabel: "Idioma",
         connecting: "Conectando...",
-        error: "Falha ao conectar ao servidor. Verifique se o servidor Glacier está acessível."
+        error: "Falha ao conectar ao servidor. Verifique se o servidor Glacier está acessível.",
+        waitlist: "Lista de Espera: 14B Model",
+        waitlistTitle: "Acesse o 14B Model",
+        waitlistText: "Insira seu e-mail para se inscrever na lista de espera."
     },
     es: {
         newChat: "Nuevo chat",
@@ -99,6 +105,9 @@ La API de Riesgo utiliza el marco **StableAML**. Mediante ensambles de árboles 
         settingsTitle: "Configuración",
         languageLabel: "Idioma",
         connecting: "Conectando...",
-        error: "Error al conectar con el servidor. Compruebe si el servidor Glacier es accesible."
+        error: "Error al conectar con el servidor. Compruebe si el servidor Glacier es accesible.",
+        waitlist: "Lista de Espera: 14B Model",
+        waitlistTitle: "Acceda al 14B Model",
+        waitlistText: "Ingrese su correo electrónico para inscribirse a la lista de espera."
     }
 };

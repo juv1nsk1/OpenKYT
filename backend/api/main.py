@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 from uuid import uuid4
 from run_analysis import run_analysis
-
+from waitlist import add_to_waitlist
 
 dotenv.load_dotenv()
 
@@ -31,3 +31,11 @@ async def analyze(request: Request):
 async def reset(request: Request):
     request.session.clear()
     return {"message": "Session reset successfully"}
+
+@app.post("/waitlist")
+async def waitlist(request: Request):
+    data = await request.json()
+    email = data.get("email")
+    session_id = request.session.get("session_id")
+    add_to_waitlist(email, session_id)
+    return {"message": "Email added to waitlist"}

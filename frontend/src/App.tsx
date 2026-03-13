@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, User, Info, X, Menu, Bot, Settings } from 'lucide-react';
+import { Send, Plus, User, Info, X, Menu, Bot, Settings, Gift } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { translations } from './i18n';
@@ -16,10 +16,12 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [language, setLanguage] = useState<Language>('en');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [email, setEmail] = useState('');
 
   const t = (key: keyof typeof translations['en']) => translations[language][key];
 
@@ -122,6 +124,19 @@ export default function App() {
     }
   };
 
+  const handleSubmitWaitlist = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsWaitlistOpen(false);
+    fetch('/api/waitlist', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    setEmail('');
+  };
+
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100 font-sans overflow-hidden">
       {/* Sidebar */}
@@ -144,6 +159,12 @@ export default function App() {
             <Info size={18} />
             <span className="font-medium">{t('about')}</span>
           </button>
+          <button onClick={() => setIsWaitlistOpen(true)} className="flex gap-2 text-gray-400 hover:text-white transition-colors w-full px-2 py-2 rounded-lg hover:bg-gray-800/50">
+            <Gift size={18} />
+            <span className="font-medium">{t('waitlist')}</span>
+          </button>
+
+
         </div>
       </div>
 
@@ -328,6 +349,32 @@ export default function App() {
                 </select>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Waitlist Modal */}
+      {isWaitlistOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
+            <button onClick={() => setIsWaitlistOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800 transition-colors">
+              <X size={20} />
+            </button>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center border border-gray-700">
+                <Gift size={24} className="text-gray-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">{t('waitlistTitle')}</h3>
+            </div>
+            <p className="text-gray-400">{t('waitlistText')}</p>
+
+            <div className="space-y-4">
+              <div>
+
+                <input type="email" onChange={(e) => setEmail(e.target.value)} placeholder="your.email@example.com" className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 my-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500" />
+              </div>
+            </div>
+            <button type="submit" onClick={handleSubmitWaitlist} className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-colors">Submit</button>
           </div>
         </div>
       )}
