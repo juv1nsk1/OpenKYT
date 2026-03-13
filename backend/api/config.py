@@ -14,9 +14,7 @@ OPERATIONAL PROTOCOLS:
 5. LINGUISTIC ADAPTIVITY: Always respond in the EXACT same language used by the user in the prompt.
 
 OUTPUT STRUCTURE:
-- Summary of Findings (Executive view)
-- Risk Profile (ML Score interpretation)
-- On-chain Behavior (Analysis of patterns)
+
 - Expert Conclusion/Next Steps.
 
 FORMAT:
@@ -24,4 +22,9 @@ FORMAT:
 - In tables, always truncate addresses to the format 0x1234...abcd to save space.
 """
 
+OLLAMA_MODEL = "openkyt-model"
+
+# - Summary of Findings (Executive view)
+# - Risk Profile (ML Score interpretation)
+# - On-chain Behavior (Analysis of patterns)
 

@@ -3,57 +3,76 @@ import dotenv
 import json
 from typing import List, Dict, Any
 from ollama import AsyncClient
-from config import system_instruction
+from config import system_instruction, OLLAMA_MODEL
 from history import get_history, save_history
-from tools import check_address_forensics
+import tools
 
 dotenv.load_dotenv()
 
 async def run_analysis(user_input: str, session_id: str):
     tools_map = {
-        'check_address_forensics': check_address_forensics
+        'get_address_info': tools.get_address_info,
     }
 
     client = AsyncClient(host=os.getenv("OLLAMA_HOST"))
+
     
     history: List[Dict[str, Any]] = get_history(session_id)
     if not history:
         history.append({'role': 'system', 'content': system_instruction})
+    
+    knowledge_context = await tools.search_knowledge(user_input, client)    
+    if knowledge_context:
+        # Inject the retrieved knowledge as a temporary system hint        
+        history.append({
+            'role': 'system', 
+            'content': f"Relevant technical/legal context for this query:\n{knowledge_context}"
+        })
+
+    if "0x" in user_input:
+        history.append({'role': 'system', 'content': 'User provided an address. I must use get_address_info now.'})
+    
     history.append({'role': 'user', 'content': user_input})      
 
     yield f"data: {json.dumps({'status': 'Thinking...', 'type': 'info'})}\n\n"
 
     response = await client.chat(
-        model='llama3.1:8b',
+        model=OLLAMA_MODEL,
         messages=history,
-        tools=[{
+        stream=False,
+        tools=[        {
             'type': 'function',
             'function': {
-                'name': 'check_address_forensics',
-                'description': 'Check Risk Score of an address',
+                'name': 'get_address_info',
+                'description': 'Get risk score and labels for an ETH address.',
                 'parameters': {
                     'type': 'object',
                     'properties': {'address': {'type': 'string'}},
                     'required': ['address']
                 }
             }
-        }]
+        }
+        ]
     )
-
+    print(f"DEBUG Response: {response['message']}")
     if response.get('message', {}).get('tool_calls'):
         for tool in response['message']['tool_calls']:
             name = tool['function']['name']
             args = tool['function']['arguments']
             
-            if isinstance(args, dict) and 'object' in args:
-                args = args['object']
-            if isinstance(args, dict) and 'properties' in args:
-                args = args['properties']
+            # if isinstance(args, dict) and 'object' in args:
+            #     args = args['object']
+            # if isinstance(args, dict) and 'properties' in args:
+            #     args = args['properties']
+            if isinstance(args, str):
+                args = json.loads(args)
 
-            yield f"data: {json.dumps({'status': f'Querying Cryosphere for {args.get("address")}...', 'type': 'tool'})}\n\n"
+            target_address = args.get('address')
+            yield f"data: {json.dumps({'status': f'Querying Cryosphere for {target_address}...', 'type': 'tool'})}\n\n"
             
-            result = await tools_map[name](**args)
-            
+            # result = await tools_map[name](**args)
+            result = await tools_map[name](address=target_address)
+
             history.append(response['message'])
             history.append({'role': 'tool', 'content': str(result), 'name': name})
 
@@ -62,7 +81,7 @@ async def run_analysis(user_input: str, session_id: str):
     
     full_response_content = ""
 
-    async for chunk in await client.chat(model='llama3.1:8b', messages=history, stream=True):
+    async for chunk in await client.chat(model=OLLAMA_MODEL, messages=history, stream=True):
         token = chunk['message']['content']
         if token:
             full_response_content += token

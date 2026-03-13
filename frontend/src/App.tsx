@@ -57,7 +57,13 @@ export default function App() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/analyze?prompt=${encodeURIComponent(userMessage.content)}`);
+      const response = await fetch(`/api/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: userMessage.content }),
+      });
       if (!response.body) throw new Error('No response body');
 
       const reader = response.body.getReader();

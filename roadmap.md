@@ -21,6 +21,7 @@ def add_numbers(a, b):
 # Mock logic: If prompt contains 'sum', call add_numbers
 
 2.1 Create Google Cloud Server to handle Ollama due to heavy memory requirements - Glacier / Cryosphere / Vostok
+```bash
 NVIDIA L4 1 GPU  16GB RAM  U$516
 Disk / 100GB balanced
 Disk /mnt/ollama 100GB SSD
@@ -29,7 +30,9 @@ sudo fdisk  /dev/nvme0n2  ( n/p/1/enter/enter/w)
 sudo mkfs.ext4 /dev/nvme0n2p1
 /dev/nvme0n2p1  /mnt/ollama     ext4    defaults 0  2
 sudo systemctl edit ollama.service
+```
 
+```bash
 [Service]
 Environment="OLLAMA_MODELS=/mnt/ollama"
 Environment="OLLAMA_HOST=0.0.0.0"
@@ -37,6 +40,7 @@ Environment="OLLAMA_NUM_PARALLEL=4"
 Environment="OLLAMA_MAX_LOADED_MODELS=2"
 $ sudo systemctl daemon-reload
 $ sudo systemctl restart ollama
+```
 
 3. ClickHouse Data Functions
 Write optimized functions to fetch your forensic data.

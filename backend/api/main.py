@@ -17,8 +17,10 @@ app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY"))
 class ResetSession(BaseModel):
     session_id: str
 
-@app.get("/analyze")
-async def analyze(prompt: str, request: Request):
+@app.post("/analyze")
+async def analyze(request: Request):
+    data = await request.json()
+    prompt = data.get("prompt")
     session_id = request.session.get("session_id")
     if not session_id:
         session_id = str(uuid4())
